@@ -7,7 +7,7 @@
     "index.js"
   ],
   "dependencies": {
-    "node-cmd": "ˆ3.0.0",
+    "node-cmd": "^3.0.0",
     "loader-utils": "^1.0.2"
   },
   "homepage": "https://github.com/martim00/python-webpack-loader",
