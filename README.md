@@ -9,7 +9,7 @@
   <h1>Python Webpack Loader</h1>
 </div>
 
-Loads Python files and transpile to Javascript using the awesome Transcrypt compiler.
+Loads Python files and transpile to Javascript using the awesome <a href="http://www.transcrypt.org/">Transcrypt</a> compiler.
 
 
 <h2>Install</h2>
@@ -21,17 +21,12 @@ npm install --save-dev py-loader
 
 <h2>Usage</h2>
 
-
 ```js
-import foo from 'py-loader!./foo.py';
+import Something from 'main.py';
 ```
 
-### Configuration (recommended)
+### Configuration
 
-
-```js
-import something from 'main.py';
-```
 
 **webpack.config.js**
 ```js
@@ -40,7 +35,7 @@ module.exports = {
     rules: [
       {
         test: /\.py$/,
-        use: [ 'py-loader' ]
+        loader: 'py-loader'
       }
     ]
   }
