@@ -1,6 +1,6 @@
 {
   "name": "py-loader",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "martim00 (martim00@gmail.com)",
   "description": "Webpack loader for Python",
   "files": [
