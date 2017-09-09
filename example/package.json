@@ -1,0 +1,17 @@
+{
+  "name": "pyloader-test",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node_modules/.bin/webpack-dev-server --progress --colors --port 8080 --content-base .",
+    "build": "node_modules/.bin/webpack --progress --profile --colors",
+    "watch": "node_modules/.bin/webpack --progress --profile --colors --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "py-loader": "^0.1.1",
+    "webpack": "^3.5.6",
+    "webpack-dev-server": "^2.4.2"
+  }
+}
