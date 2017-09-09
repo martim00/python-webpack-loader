@@ -1,7 +1,6 @@
 
-var cmd = require('node-cmd')
-var fs = require('fs');
-
+const cmd = require('node-cmd')
+const fs = require('fs');
 const path = require('path');
 
 function findEntry(mod) {
@@ -13,21 +12,13 @@ function findEntry(mod) {
 
 module.exports = function (source) {
 
-    console.log(source);
-//    console.log(this)
+//    console.log(source);
     var entry = findEntry(this._module)
     var name = path.basename(entry, ".py");
     console.log("entry " + name)
 
-
     var callback = this.async();
 
-    cmd.get(
-        'pwd',
-        function(err, data, stderr){
-            console.log('the current working dir is : ',data)
-        }
-    );
     fs.writeFile(name + ".py", source, function(err) {
         if (!err) {
 
@@ -43,6 +34,4 @@ module.exports = function (source) {
         }
 
     });
-    console.log(source);
-    return "";
 }
