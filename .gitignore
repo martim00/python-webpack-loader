@@ -1,2 +1,4 @@
 node_modules
 .idea
+example/__javascript__/
+example/dist/

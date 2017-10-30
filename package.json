@@ -1,14 +1,14 @@
 {
   "name": "py-loader",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "martim00 (martim00@gmail.com)",
   "description": "Webpack loader for Python",
   "files": [
     "index.js"
   ],
   "dependencies": {
-    "node-cmd": "^3.0.0",
-    "loader-utils": "^1.0.2"
+    "loader-utils": "^1.1.0",
+    "node-cmd": "^3.0.0"
   },
   "homepage": "https://github.com/martim00/python-webpack-loader",
   "repository": {

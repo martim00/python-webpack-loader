@@ -9,24 +9,25 @@
   <h1>Python Webpack Loader</h1>
 </div>
 
-Loads Python files and transpile to Javascript using the awesome <a href="http://www.transcrypt.org/">Transcrypt</a> compiler.
+Loads Python files and transpile to JavaScript using the awesome [Transcrypt](http://www.transcrypt.org/) or [Jiphy](https://github.com/timothycrosley/jiphy) compilers.
 
 
-<h2>Install</h2>
+## Install
 
 ```bash
 pip install transcrypt
 npm install --save-dev py-loader
 ```
 
-<h2>Usage</h2>
+You may specify `jiphy` instead of `transcrypt` if you prefer. In this case, ensure that `options.compiler` in `webpack.config.js` is set to `jiphy` (see below).
+
+## Usage
 
 ```js
 import Something from 'main.py';
 ```
 
 ### Configuration
-
 
 **webpack.config.js**
 ```js
@@ -36,9 +37,17 @@ module.exports = {
       {
         test: /\.py$/,
         loader: 'py-loader'
+        options: {
+          compiler: 'transcrypt'
+        }
       }
     ]
   }
 }
 ```
 
+## Extend
+
+`py-loader` can be extended to use other Python compilers. Just fork this repo and extend the `compilers` object in `index.js`.
+
+Please submit a pull request with your addition.

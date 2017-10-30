@@ -14,7 +14,10 @@ module.exports = {
     rules: [
       {
         test: /\.py$/,
-        loader: 'py-loader'
+        loader: 'py-loader',
+        options: {
+          //compiler: 'jiphy'
+        }
       }
     ]
   }
