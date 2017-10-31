@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "py-loader": "^0.1.1",
+    "py-loader": "^0.2.0",
     "webpack": "^3.5.6",
     "webpack-dev-server": "^2.4.2"
   }
