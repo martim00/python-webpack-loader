@@ -44,15 +44,16 @@ module.exports = function (source) {
     //console.log(`py-loader: compiling ${entry} with ${compilerName}...`);
 
     const name = path.basename(entry, ".py");
+    const srcDir = path.dirname(entry, ".py");
 
     if (!entry.toLowerCase().endsWith(".py")) {
         console.warn("This loader only handles .py files. This could be a problem with your webpack.config.js file. Please add a rule for .py files in your modules entry.");
         callback(null, source);
     }
 
-    cmd.get(`${compiler.name} ${compiler.switches} ${name}.py`, function(err, data, stderr) {
+    cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${name}.py`, function(err, data, stderr) {
         if (!err) {
-            const filename = `${compiler.folder}${slash}${name}.js`;
+            const filename = `${srcDir}${slash}${compiler.folder}${slash}${name}.js`;
             js = fs.readFileSync(filename, "utf8");
             fs.unlinkSync(filename);
             callback(null, js);
