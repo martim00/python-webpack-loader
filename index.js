@@ -18,7 +18,8 @@ module.exports = function (source) {
             switches: '-b -n -m',
             folder: `.${slash}__javascript__`,
             install: 'pip install transcrypt',
-            python_version: '3.x'
+            python_version: '3.x',
+            sourcemaps: true
         },
         jiphy: {
             switches: '',
@@ -76,11 +77,17 @@ module.exports = function (source) {
             if (!err) {
                 const filename = `${srcDir}${slash}${compiler.folder}${slash}${name}.js`;
                 js = fs.readFileSync(filename, "utf8");
-
-                const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${name}.js`;
-                sourceMap = fs.readFileSync(sourceMapFile + ".map", "utf8")
                 fs.unlinkSync(filename);
-                callback(null, js, sourceMap);
+
+                if (compiler.sourcemaps) {
+                    const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${name}.js`;
+                    sourceMap = fs.readFileSync(sourceMapFile + ".map", "utf8")
+                    fs.unlinkSync(sourceMapFile + ".map");
+                    callback(null, js, sourceMap); }
+                else {
+                    callback(null, js);
+                }
+
             }
             else {
                 console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
