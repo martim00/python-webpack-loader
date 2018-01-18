@@ -9,17 +9,17 @@
   <h1>Python Webpack Loader</h1>
 </div>
 
-Loads Python files and transpile to JavaScript using the awesome [Transcrypt](http://www.transcrypt.org/) or [Jiphy](https://github.com/timothycrosley/jiphy) compilers.
+Loads Python files and transpile to JavaScript using the awesome [Transcrypt](http://www.transcrypt.org/), [Jiphy](https://github.com/timothycrosley/jiphy) or [Javascripthon](https://github.com/metapensiero/metapensiero.pj) compilers.
 
 
 ## Install
 
 ```bash
-pip install transcrypt
+pip install transcrypt  # or jiphy, or javascripthon
 npm install --save-dev py-loader
 ```
 
-You may specify `jiphy` instead of `transcrypt` if you prefer. In this case, ensure that `options.compiler` in `webpack.config.js` is set to `jiphy` (see below).
+You may specify `jiphy` instead of `transcrypt` if you prefer. In this case, ensure that `options.compiler` in `webpack.config.js` is set to `jiphy` (see below). The compiler option for Javascripthon is `pj`.
 
 ## Usage
 
