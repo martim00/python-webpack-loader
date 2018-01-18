@@ -4,6 +4,8 @@ const { sep: slash } = require('path');
 const path = require('path');
 const loaderUtils = require('loader-utils');
 
+const spawn = require('child_process').spawn;
+
 const properName = name => name.replace(/^./, c => c.toUpperCase());
 const listify = array => array.join(', ')
     // make a comma-separated list ending with a '&' separator
@@ -23,6 +25,13 @@ module.exports = function (source) {
             folder: `.${slash}`,
             install: 'pip install jiphy',
             python_version: '2.x'
+        },
+        pj: {
+            switches: '--inline-map -s -',
+            folder: `.${slash}`,
+            install: 'pip install javascripthon',
+            python_version: '3.x',
+            streaming: true
         }
     };
 
@@ -51,20 +60,33 @@ module.exports = function (source) {
         callback(null, source);
     }
 
-    cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${name}.py`, function(err, data, stderr) {
-        if (!err) {
-            const filename = `${srcDir}${slash}${compiler.folder}${slash}${name}.js`;
-            js = fs.readFileSync(filename, "utf8");
+    if (compiler.streaming) {
+        const operation = `${compiler.switches} ${srcDir}${slash}${name}.py`
 
-            const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${name}.js`;
-            sourceMap = fs.readFileSync(sourceMapFile + ".map", "utf8")
-            fs.unlinkSync(filename);
-            callback(null, js, sourceMap);
-        }
-        else {
-            console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
-            callback(err);
-        }
+        var child = spawn(compiler.name, compiler.switches.split(' '));
+        child.stdin.write(source);
 
-    });
+        child.stdout.on('data', function (js) {
+            callback(null, js);
+        });
+        child.stdin.end();
+    }
+    else {
+        cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${name}.py`, function(err, data, stderr) {
+            if (!err) {
+                const filename = `${srcDir}${slash}${compiler.folder}${slash}${name}.js`;
+                js = fs.readFileSync(filename, "utf8");
+
+                const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${name}.js`;
+                sourceMap = fs.readFileSync(sourceMapFile + ".map", "utf8")
+                fs.unlinkSync(filename);
+                callback(null, js, sourceMap);
+            }
+            else {
+                console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
+                callback(err);
+            }
+
+        });
+    }
 }
