@@ -71,7 +71,7 @@ module.exports = function (source) {
             data = data + js;
         });
         child.stderr.on('data', function (err) {
-            console.log(String(err));
+            data = data + err;
         });
         child.stdout.on('finish', function () {
             callback(null, data);
