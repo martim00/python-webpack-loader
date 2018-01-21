@@ -25,7 +25,8 @@ module.exports = function (source) {
             switches: '',
             folder: `.${slash}`,
             install: 'pip install jiphy',
-            python_version: '2.x'
+            python_version: '2.x',
+            sourcemaps: false
         },
         pj: {
             switches: '--inline-map -s -',
@@ -62,13 +63,18 @@ module.exports = function (source) {
     }
 
     if (compiler.streaming) {
-        const operation = `${compiler.switches} ${srcDir}${slash}${name}.py`
-
         var child = spawn(compiler.name, compiler.switches.split(' '));
         child.stdin.write(source);
 
+        var data = ''
         child.stdout.on('data', function (js) {
-            callback(null, js);
+            data = data + js;
+        });
+        child.stderr.on('data', function (err) {
+            console.log(String(err));
+        });
+        child.stdout.on('finish', function () {
+            callback(null, data);
         });
         child.stdin.end();
     }
