@@ -51,35 +51,41 @@ module.exports = function (source) {
 
     const callback = this.async();
 
-    const entry = this._module.resource;
-    //console.log(`py-loader: compiling ${entry} with ${compilerName}...`);
-
-    const name = path.basename(entry, ".py");
-    const srcDir = path.dirname(entry, ".py");
-
-    if (!entry.toLowerCase().endsWith(".py")) {
-        console.warn("This loader only handles .py files. This could be a problem with your webpack.config.js file. Please add a rule for .py files in your modules entry.");
-        callback(null, source);
-    }
-
     if (compiler.streaming) {
         var child = spawn(compiler.name, compiler.switches.split(' '));
         child.stdin.write(source);
 
-        var data = ''
+        var data = '';
+        var error = '';
         child.stdout.on('data', function (js) {
             data = data + js;
         });
-        child.stderr.on('data', function (err) {
-            data = data + err;
+        child.stderr.on('data', function (msg) {
+            error = error + msg;
         });
-        child.stdout.on('finish', function () {
-            callback(null, data);
+        child.on('exit', function () {
+            callback(error, data);
+        });
+        child.on('error', function(err) {
+            console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
+            callback(err);
         });
         child.stdin.end();
     }
     else {
         cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${name}.py`, function(err, data, stderr) {
+
+            const entry = this._module.resource;
+            //console.log(`py-loader: compiling ${entry} with ${compilerName}...`);
+
+            const name = path.basename(entry, ".py");
+            const srcDir = path.dirname(entry, ".py");
+
+            if (!entry.toLowerCase().endsWith(".py")) {
+                console.warn("This loader only handles .py files. This could be a problem with your webpack.config.js file. Please add a rule for .py files in your modules entry.");
+                callback(null, source);
+            }
+
             if (!err) {
                 const filename = `${srcDir}${slash}${compiler.folder}${slash}${name}.js`;
                 js = fs.readFileSync(filename, "utf8");
