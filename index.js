@@ -29,11 +29,12 @@ module.exports = function (source) {
             sourcemaps: false
         },
         pj: {
-            switches: '--inline-map -s -',
+            switches: '--inline-map --source-name %f -s -',
             folder: `.${slash}`,
             install: 'pip install javascripthon',
             python_version: '3.x',
-            streaming: true
+            streaming: true,
+            sourcemaps: true
         }
     };
 
@@ -48,10 +49,17 @@ module.exports = function (source) {
     }
 
     compiler.name = compilerName;
+    const entry = this._module.resource;
+    //console.log(`py-loader: compiling ${entry} with ${compilerName}...`);
+
+    const basename = path.basename(entry, ".py");
+    const srcDir = path.dirname(entry, ".py");
 
     const callback = this.async();
 
     if (compiler.streaming) {
+        compiler.switches = compiler.switches.replace('%f', basename);
+
         var child = spawn(compiler.name, compiler.switches.split(' '));
         child.stdin.write(source);
 
@@ -64,7 +72,14 @@ module.exports = function (source) {
             error = error + msg;
         });
         child.on('exit', function () {
-            callback(error, data);
+            if (compiler.sourcemaps) {
+                sourcemapLine = data.split('\n').splice(-3,1)[0]; // Javascripthon specific?
+                sourceMap = new Buffer(sourcemapLine.substring(sourcemapLine.indexOf('base64,') + 7), 'base64').toString();
+                callback(error, data, sourceMap); }
+            else {
+                callback(error, data);
+            }
+
         });
         child.on('error', function(err) {
             console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
@@ -73,13 +88,7 @@ module.exports = function (source) {
         child.stdin.end();
     }
     else {
-        cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${name}.py`, function(err, data, stderr) {
-
-            const entry = this._module.resource;
-            //console.log(`py-loader: compiling ${entry} with ${compilerName}...`);
-
-            const name = path.basename(entry, ".py");
-            const srcDir = path.dirname(entry, ".py");
+        cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${basename}.py`, function(err, data, stderr) {
 
             if (!entry.toLowerCase().endsWith(".py")) {
                 console.warn("This loader only handles .py files. This could be a problem with your webpack.config.js file. Please add a rule for .py files in your modules entry.");
@@ -87,12 +96,12 @@ module.exports = function (source) {
             }
 
             if (!err) {
-                const filename = `${srcDir}${slash}${compiler.folder}${slash}${name}.js`;
+                const filename = `${srcDir}${slash}${compiler.folder}${slash}${basename}.js`;
                 js = fs.readFileSync(filename, "utf8");
                 fs.unlinkSync(filename);
 
                 if (compiler.sourcemaps) {
-                    const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${name}.js`;
+                    const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${basename}.js`;
                     sourceMap = fs.readFileSync(sourceMapFile + ".map", "utf8")
                     fs.unlinkSync(sourceMapFile + ".map");
                     callback(null, js, sourceMap); }
