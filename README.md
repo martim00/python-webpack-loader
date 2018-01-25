@@ -55,6 +55,7 @@ Please submit a pull request with your addition.
 
 ## Contributors
 
-- Ryan Liao (https://github.com/pirsquare)
+- DuncanMacWeb (https://github.com/DuncanMacWeb)
 - Sebastian Silva (https://github.com/icarito)
+- Ryan Liao (https://github.com/pirsquare)
 
