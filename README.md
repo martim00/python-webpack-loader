@@ -51,3 +51,10 @@ module.exports = {
 `py-loader` can be extended to use other Python compilers. Just fork this repo and extend the `compilers` object in `index.js`.
 
 Please submit a pull request with your addition.
+
+
+## Contributors
+
+- Ryan Liao (https://github.com/pirsquare)
+- Sebastian Silva (https://github.com/icarito)
+
