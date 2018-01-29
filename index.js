@@ -65,6 +65,7 @@ module.exports = function (source) {
 
         var data = '';
         var error = '';
+        var sourceMap = '';
         child.stdout.on('data', function (js) {
             data = data + js;
         });
@@ -75,11 +76,13 @@ module.exports = function (source) {
             if (compiler.sourcemaps) {
                 sourcemapLine = data.split('\n').splice(-3,1)[0]; // Javascripthon specific?
                 sourceMap = new Buffer(sourcemapLine.substring(sourcemapLine.indexOf('base64,') + 7), 'base64').toString();
-                callback(error, data, sourceMap); }
-            else {
-                callback(error, data);
             }
-
+            if (error != '') {
+                console.error(error.toString());
+                callback(null, error, sourceMap)  }
+            else {
+                callback(null, data, sourceMap);
+            }
         });
         child.on('error', function(err) {
             console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
