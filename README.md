@@ -58,6 +58,11 @@ module.exports = {
 
 An example of a simple VueJS app written in (mostly) Python can be seen in the `examples/vue-demo` folder.
 
+***Caveats***
+* Only tested with Transcrypt
+* The import statement for loading sub-components still looks a bit weird
+* Web-pack entry point is still a javascript file
+
 ## Extend
 
 `py-loader` can be extended to use other Python compilers. Just fork this repo and extend the `compilers` object in `index.js`.
