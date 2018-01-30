@@ -46,6 +46,18 @@ module.exports = {
 }
 ```
 
+### VueJS support
+
+`py-loader` can also be used to compile .vue Single File Components used by (VueJS)[https://www.vuejs.org]. This assumes that you already have `vue-loader` set up and working with javascript .vue files. Modify your `vue-loader` config file as shown:
+
+```js
+  loaders: {
+    'py': require.resolve('py-loader')
+  },
+```
+
+An example of a simple VueJS app written in (mostly) Python can be seen in the `examples/vue-demo` folder.
+
 ## Extend
 
 `py-loader` can be extended to use other Python compilers. Just fork this repo and extend the `compilers` object in `index.js`.
@@ -58,4 +70,3 @@ Please submit a pull request with your addition.
 - DuncanMacWeb (https://github.com/DuncanMacWeb)
 - Sebastian Silva (https://github.com/icarito)
 - Ryan Liao (https://github.com/pirsquare)
-
