@@ -52,9 +52,12 @@ module.exports = function (source) {
     const entry = this._module.resource;
     //console.log(`py-loader: compiling ${entry} with ${compilerName}...`);
 
-    const basename = path.basename(entry, ".py");
-    const srcDir = path.dirname(entry, ".py");
+    const fileinfo = path.parse(entry);
 
+    const srcDir = fileinfo.dir; // path.dirname(entry, ".py");
+    var basename = fileinfo.name;
+    var delete_after = false;
+    // const basename = path.basename(entry, ".py");
     const callback = this.async();
 
     if (compiler.streaming) {
@@ -91,17 +94,24 @@ module.exports = function (source) {
         child.stdin.end();
     }
     else {
-        cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${basename}.py`, function(err, data, stderr) {
-
-            if (!entry.toLowerCase().endsWith(".py")) {
-                console.warn("This loader only handles .py files. This could be a problem with your webpack.config.js file. Please add a rule for .py files in your modules entry.");
-                callback(null, source);
-            }
-
+        if (fileinfo.ext == ".vue") {
+            basename = `__${fileinfo.name}`
+            delete_after = true;
+            fs.writeFileSync(`${srcDir}${slash}__${fileinfo.name}.py`, source);
+        }else if(fileinfo.ext != ".py")
+        {
+            console.warn("This loader only handles .py files. This could be a problem with your webpack.config.js file. Please add a rule for .py files in your modules entry.");
+            callback(null, source);
+            return;
+        }
+        cmd.get(`${compiler.name} ${compiler.switches} '${srcDir}${slash}${basename}.py'`, function(err, data, stderr) {
             if (!err) {
                 const filename = `${srcDir}${slash}${compiler.folder}${slash}${basename}.js`;
                 js = fs.readFileSync(filename, "utf8");
                 fs.unlinkSync(filename);
+                if(delete_after){
+                    fs.unlinkSync(`${srcDir}${slash}__${fileinfo.name}.py`);
+                }
 
                 if (compiler.sourcemaps) {
                     const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${basename}.js`;
@@ -114,7 +124,8 @@ module.exports = function (source) {
 
             }
             else {
-                console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
+                console.log(stderr)
+                // console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
                 callback(err);
             }
 
