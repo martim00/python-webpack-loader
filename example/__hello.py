@@ -1,6 +1,4 @@
-# js
-import axios from 'axios'
-# endjs
+
 
 
 def on_response(response):

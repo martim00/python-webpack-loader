@@ -11,7 +11,18 @@ const listify = array => array.join(', ')
     // make a comma-separated list ending with a '&' separator
     .replace(/(, )[^,]*$/, s => ' & ' + s.split(', ')[1]);
 
+function extractJsCode(source) {
+    console.log(source);
+    var re = /\# js([\s\S]*?)\# endjs/g;
+    var matched = re.exec(source);
+    var result = source.replace(re, '');
+    return {'js': matched ? matched[1] : null, 'python': result};
+}
+
 module.exports = function (source) {
+
+    extractedCode = extractJsCode(source);
+    source = extractedCode.python
 
     const compilers = {
         transcrypt: {
@@ -49,15 +60,13 @@ module.exports = function (source) {
     }
 
     compiler.name = compilerName;
-    const entry = this._module.resource;
+    const entry = this.resourcePath;
     //console.log(`py-loader: compiling ${entry} with ${compilerName}...`);
 
     const fileinfo = path.parse(entry);
 
     const srcDir = fileinfo.dir; // path.dirname(entry, ".py");
     var basename = fileinfo.name;
-    var delete_after = false;
-    // const basename = path.basename(entry, ".py");
     const callback = this.async();
 
     if (compiler.streaming) {
@@ -66,7 +75,7 @@ module.exports = function (source) {
         var child = spawn(compiler.name, compiler.switches.split(' '));
         child.stdin.write(source);
 
-        var data = '';
+        var data = extractedCode.js ? extractedCode.js : '';
         var error = '';
         var sourceMap = '';
         child.stdout.on('data', function (js) {
@@ -94,24 +103,21 @@ module.exports = function (source) {
         child.stdin.end();
     }
     else {
-        if (fileinfo.ext == ".vue") {
-            basename = `__${fileinfo.name}`
-            delete_after = true;
-            fs.writeFileSync(`${srcDir}${slash}__${fileinfo.name}.py`, source);
-        }else if(fileinfo.ext != ".py")
-        {
-            console.warn("This loader only handles .py files. This could be a problem with your webpack.config.js file. Please add a rule for .py files in your modules entry.");
-            callback(null, source);
-            return;
-        }
-        cmd.get(`${compiler.name} ${compiler.switches} '${srcDir}${slash}${basename}.py'`, function(err, data, stderr) {
+        basename = `__${fileinfo.name}`
+        fs.writeFileSync(`${srcDir}${slash}__${fileinfo.name}.py`, source);
+
+        cmd.get(`${compiler.name} ${compiler.switches} ${srcDir}${slash}${basename}.py`, function(err, data, stderr) {
+
             if (!err) {
                 const filename = `${srcDir}${slash}${compiler.folder}${slash}${basename}.js`;
                 js = fs.readFileSync(filename, "utf8");
+
+                if (extractedCode.js) 
+                    js = extractedCode.js + js;
+
                 fs.unlinkSync(filename);
-                if(delete_after){
-                    fs.unlinkSync(`${srcDir}${slash}__${fileinfo.name}.py`);
-                }
+
+                fs.unlinkSync(`${srcDir}${slash}__${fileinfo.name}.py`);
 
                 if (compiler.sourcemaps) {
                     const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${basename}.js`;
