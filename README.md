@@ -48,7 +48,7 @@ module.exports = {
 
 ### VueJS support
 
-`py-loader` can also be used to compile .vue Single File Components used by (VueJS)[https://www.vuejs.org]. This assumes that you already have `vue-loader` set up and working with javascript .vue files. Modify your `vue-loader` config file as shown:
+`py-loader` can also be used to compile .vue Single File Components used by [VueJS](https://www.vuejs.org). This assumes that you already have `vue-loader` set up and working with javascript .vue files. Modify your `vue-loader` config file as shown:
 
 ```js
   loaders: {
