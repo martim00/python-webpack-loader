@@ -109,6 +109,7 @@ module.exports = function (source) {
             return;
         }
         cmd.get(`${compiler.name} ${compiler.switches} '${srcDir}${slash}${basename}.py'`, function(err, data, stderr) {
+
             if (!err) {
                 const filename = `${srcDir}${slash}${compiler.folder}${slash}${basename}.js`;
                 js = fs.readFileSync(filename, "utf8");
@@ -133,7 +134,8 @@ module.exports = function (source) {
 
             }
             else {
-                console.log(stderr)
+                console.error(stderr)
+                console.error(data)
                 // console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
                 callback(err);
             }
