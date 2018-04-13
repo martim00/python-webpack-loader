@@ -3,6 +3,7 @@ const fs = require('fs');
 const { sep: slash } = require('path');
 const path = require('path');
 const loaderUtils = require('loader-utils');
+const extend = require('extend');
 
 const spawn = require('child_process').spawn;
 
@@ -19,14 +20,16 @@ module.exports = function (source) {
             folder: `.${slash}__javascript__`,
             install: 'pip install transcrypt',
             python_version: '3.x',
-            sourcemaps: true
+            sourcemaps: true,
+            keep_compiled: false
         },
         jiphy: {
             switches: '',
             folder: `.${slash}`,
             install: 'pip install jiphy',
             python_version: '2.x',
-            sourcemaps: false
+            sourcemaps: false,
+            keep_compiled: false
         },
         pj: {
             switches: '--inline-map --source-name %f -s -',
@@ -34,13 +37,14 @@ module.exports = function (source) {
             install: 'pip install javascripthon',
             python_version: '3.x',
             streaming: true,
-            sourcemaps: true
+            sourcemaps: true,
+            keep_compiled: false
         }
     };
 
     const options = loaderUtils.getOptions(this);
     const compilerName = options && options.compiler || 'transcrypt';
-    const compiler = compilers[compilerName];
+    const compiler = extend(true, {}, compilers[compilerName], options || {});
 
     if (!compiler) {
         throw new Error(`py-loader only supports ${
@@ -105,26 +109,33 @@ module.exports = function (source) {
             return;
         }
         cmd.get(`${compiler.name} ${compiler.switches} '${srcDir}${slash}${basename}.py'`, function(err, data, stderr) {
+
             if (!err) {
                 const filename = `${srcDir}${slash}${compiler.folder}${slash}${basename}.js`;
                 js = fs.readFileSync(filename, "utf8");
-                fs.unlinkSync(filename);
-                if(delete_after){
-                    fs.unlinkSync(`${srcDir}${slash}__${fileinfo.name}.py`);
+                if (!compiler.keep_compiled) {
+                    fs.unlinkSync(filename);
+                    if (delete_after) {
+                        fs.unlinkSync(`${srcDir}${slash}__${fileinfo.name}.py`);
+                    }
                 }
 
                 if (compiler.sourcemaps) {
                     const sourceMapFile = `${srcDir}${slash}${compiler.folder}${slash}extra${slash}sourcemap${slash}${basename}.js`;
                     sourceMap = fs.readFileSync(sourceMapFile + ".map", "utf8")
-                    fs.unlinkSync(sourceMapFile + ".map");
-                    callback(null, js, sourceMap); }
+                    if (!compiler.keep_compiled) {
+                        fs.unlinkSync(sourceMapFile + ".map");
+                    }
+                    callback(null, js, sourceMap);
+                }
                 else {
                     callback(null, js);
                 }
 
             }
             else {
-                console.log(stderr)
+                console.error(stderr)
+                console.error(data)
                 // console.error(`Some error occurred on ${properName(compiler.name)} compiler execution. Have you installed ${properName(compiler.name)}? If not, please run \`${compiler.install}\` (requires Python ${compiler.python_version})`);
                 callback(err);
             }

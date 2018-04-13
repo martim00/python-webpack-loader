@@ -7,6 +7,7 @@
     "index.js"
   ],
   "dependencies": {
+    "extend": "^3.0.1",
     "loader-utils": "^1.1.0",
     "node-cmd": "^3.0.0"
   },
